@@ -31,9 +31,7 @@ class _BookingPageState extends State<BookingPage> {
   bool isAvailable = true;
   final Set<String> selectedServiceTitles =
       {}; // Use a Set to track selected services
-  final Set<String> selectedServiceTitles =
-      {}; // Use a Set to track selected services
-
+  
   // Define service items for each category
   final Map<String, List<Map<String, String>>> serviceItems = {
     'Hair Cut': [
@@ -305,8 +303,7 @@ class _BookingPageState extends State<BookingPage> {
     );
   }
 
-  Widget _buildDateTimePicker(
-      String label, String value, VoidCallback onPressed) {
+  
   Widget _buildDateTimePicker(
       String label, String value, VoidCallback onPressed) {
     return Column(
@@ -314,8 +311,7 @@ class _BookingPageState extends State<BookingPage> {
       children: [
         Text(label,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        Text(label,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        
         SizedBox(height: 4),
         TextButton(
           onPressed: onPressed,
