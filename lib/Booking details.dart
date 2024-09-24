@@ -31,6 +31,8 @@ class _BookingPageState extends State<BookingPage> {
   bool isAvailable = true;
   final Set<String> selectedServiceTitles =
       {}; // Use a Set to track selected services
+  final Set<String> selectedServiceTitles =
+      {}; // Use a Set to track selected services
 
   // Define service items for each category
   final Map<String, List<Map<String, String>>> serviceItems = {
@@ -60,6 +62,16 @@ class _BookingPageState extends State<BookingPage> {
         'imageUrl':
             'https://www.bellacollina.com/hs-fs/hubfs/Spa/Massage%20with%20Male-1.jpg?width=1590&name=Massage%20with%20Male-1.jpg'
       },
+      {
+        'title': 'Relaxing Massage',
+        'imageUrl':
+            'https://cdn-ikppclh.nitrocdn.com/CueiRbtmHDfiLNmOiFYzPbGQWoFHcYmP/assets/images/optimized/rev-a083d28/www.bodycraft.co.in/wp-content/uploads/beautiful-african-woman-smiling-enjoying-massage-spa-resort-scaled.jpg'
+      },
+      {
+        'title': 'Hot Stone Therapy',
+        'imageUrl':
+            'https://www.bellacollina.com/hs-fs/hubfs/Spa/Massage%20with%20Male-1.jpg?width=1590&name=Massage%20with%20Male-1.jpg'
+      },
     ],
     'Skin': [
       {
@@ -72,8 +84,28 @@ class _BookingPageState extends State<BookingPage> {
         'imageUrl':
             'https://www.apothecopharmacy.com/wp-content/uploads/2021/01/blog-4-featured-image.jpg'
       },
+      {
+        'title': 'Facial Treatment',
+        'imageUrl':
+            'https://limelitesalonandspa.com/wp-content/uploads/2023/07/Skin-transformation-for-Women-1.jpg'
+      },
+      {
+        'title': 'Acne Removal',
+        'imageUrl':
+            'https://www.apothecopharmacy.com/wp-content/uploads/2021/01/blog-4-featured-image.jpg'
+      },
     ],
     'Nails': [
+      {
+        'title': 'Manicure',
+        'imageUrl':
+            'https://5.imimg.com/data5/SELLER/Default/2023/7/322795582/NT/SZ/ND/192559465/nail-extension-in-east-delhi-png-500x500.png'
+      },
+      {
+        'title': 'Pedicure',
+        'imageUrl':
+            'https://cdn-ikppclh.nitrocdn.com/CueiRbtmHDfiLNmOiFYzPbGQWoFHcYmP/assets/images/optimized/rev-a083d28/www.bodycraft.co.in/wp-content/uploads/beautician-massaging-hand-female-spa-salon-client-spa-treatment-product-female-feet-hand-spa.jpg'
+      },
       {
         'title': 'Manicure',
         'imageUrl':
@@ -136,6 +168,8 @@ class _BookingPageState extends State<BookingPage> {
     final startHour = hours[0];
     final endHour = hours[1];
 
+    isAvailable =
+        selectedTime!.hour >= startHour && selectedTime!.hour < endHour;
     isAvailable =
         selectedTime!.hour >= startHour && selectedTime!.hour < endHour;
     setState(() {});
@@ -273,9 +307,13 @@ class _BookingPageState extends State<BookingPage> {
 
   Widget _buildDateTimePicker(
       String label, String value, VoidCallback onPressed) {
+  Widget _buildDateTimePicker(
+      String label, String value, VoidCallback onPressed) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(label,
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
         Text(label,
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
         SizedBox(height: 4),
