@@ -301,6 +301,7 @@ class _BookingPageState extends State<BookingPage> {
             fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     );
+    
   }
 
   
