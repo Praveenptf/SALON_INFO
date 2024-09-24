@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saloon_app/RegisterPage.dart';
 import 'package:saloon_app/homepage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,24 +28,13 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
+  // Only validate that the password is at least 8 characters long
   String? _passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
     }
     if (value.length < 8) {
       return 'Password must be at least 8 characters long';
-    }
-    if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Password must contain at least one digit';
-    }
-    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-      return 'Password must contain at least one special character';
     }
     return null;
   }
@@ -160,24 +150,11 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              // Simulated login logic for demonstration
-                              String phoneNumber = _phoneNumberController.text;
-                              String password = _passwordController.text;
-
-                              // Replace with actual authentication logic
-                              if (phoneNumber == 'user' && password == 'pass') {
-                                setState(() {
-                                  _loginError = false;
-                                });
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage()));
-                              } else {
-                                setState(() {
-                                  _loginError = true;
-                                });
-                              }
+                              // If both fields pass validation, navigate to the HomePage
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomePage()));
                             }
                           },
                           child: Text(
@@ -185,18 +162,6 @@ class _LoginPageState extends State<LoginPage> {
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
-                        if (_loginError) // Display error message conditionally
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              'Invalid username or password',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                         SizedBox(height: 130),
                         Row(mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -213,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => HomePage()),
+                                      builder: (context) => SignupPage()),
                                 );
                               },
                               child: Text(
