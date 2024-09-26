@@ -31,7 +31,7 @@ class _BookingPageState extends State<BookingPage> {
   bool isAvailable = true;
   final Set<String> selectedServiceTitles =
       {}; // Use a Set to track selected services
-  
+
   // Define service items for each category
   final Map<String, List<Map<String, String>>> serviceItems = {
     'Hair Cut': [
@@ -47,7 +47,12 @@ class _BookingPageState extends State<BookingPage> {
             'https://i0.wp.com/therighthairstyles.com/wp-content/uploads/2021/09/7-low-fade-haircut.jpg?resize=500%2C570',
         'price': '\$25',
       },
-      
+      {
+        'title': 'Fade Haircut',
+        'imageUrl':
+            'https://i0.wp.com/therighthairstyles.com/wp-content/uploads/2021/09/7-low-fade-haircut.jpg?resize=500%2C570',
+        'price': '\$25',
+      },
     ],
     'Spa': [
       {
@@ -61,12 +66,12 @@ class _BookingPageState extends State<BookingPage> {
             'https://www.bellacollina.com/hs-fs/hubfs/Spa/Massage%20with%20Male-1.jpg?width=1590&name=Massage%20with%20Male-1.jpg'
       },
       {
-        'title': 'Relaxing Massage',
+        'title': 'Deep Tissue Massage',
         'imageUrl':
             'https://cdn-ikppclh.nitrocdn.com/CueiRbtmHDfiLNmOiFYzPbGQWoFHcYmP/assets/images/optimized/rev-a083d28/www.bodycraft.co.in/wp-content/uploads/beautiful-african-woman-smiling-enjoying-massage-spa-resort-scaled.jpg'
       },
       {
-        'title': 'Hot Stone Therapy',
+        'title': 'Aromatherapy',
         'imageUrl':
             'https://www.bellacollina.com/hs-fs/hubfs/Spa/Massage%20with%20Male-1.jpg?width=1590&name=Massage%20with%20Male-1.jpg'
       },
@@ -83,12 +88,12 @@ class _BookingPageState extends State<BookingPage> {
             'https://www.apothecopharmacy.com/wp-content/uploads/2021/01/blog-4-featured-image.jpg'
       },
       {
-        'title': 'Facial Treatment',
+        'title': 'Skin Rejuvenation',
         'imageUrl':
             'https://limelitesalonandspa.com/wp-content/uploads/2023/07/Skin-transformation-for-Women-1.jpg'
       },
       {
-        'title': 'Acne Removal',
+        'title': 'Anti-Aging Treatment',
         'imageUrl':
             'https://www.apothecopharmacy.com/wp-content/uploads/2021/01/blog-4-featured-image.jpg'
       },
@@ -105,12 +110,12 @@ class _BookingPageState extends State<BookingPage> {
             'https://cdn-ikppclh.nitrocdn.com/CueiRbtmHDfiLNmOiFYzPbGQWoFHcYmP/assets/images/optimized/rev-a083d28/www.bodycraft.co.in/wp-content/uploads/beautician-massaging-hand-female-spa-salon-client-spa-treatment-product-female-feet-hand-spa.jpg'
       },
       {
-        'title': 'Manicure',
+        'title': 'Nail Art',
         'imageUrl':
             'https://5.imimg.com/data5/SELLER/Default/2023/7/322795582/NT/SZ/ND/192559465/nail-extension-in-east-delhi-png-500x500.png'
       },
       {
-        'title': 'Pedicure',
+        'title': 'Gel Nails',
         'imageUrl':
             'https://cdn-ikppclh.nitrocdn.com/CueiRbtmHDfiLNmOiFYzPbGQWoFHcYmP/assets/images/optimized/rev-a083d28/www.bodycraft.co.in/wp-content/uploads/beautician-massaging-hand-female-spa-salon-client-spa-treatment-product-female-feet-hand-spa.jpg'
       },
@@ -168,8 +173,6 @@ class _BookingPageState extends State<BookingPage> {
 
     isAvailable =
         selectedTime!.hour >= startHour && selectedTime!.hour < endHour;
-    isAvailable =
-        selectedTime!.hour >= startHour && selectedTime!.hour < endHour;
     setState(() {});
   }
 
@@ -223,8 +226,8 @@ class _BookingPageState extends State<BookingPage> {
               children: [
                 ListTile(
                   title: Text(widget.shopName,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   subtitle: Text(widget.shopAddress),
                 ),
                 ListTile(
@@ -235,7 +238,7 @@ class _BookingPageState extends State<BookingPage> {
             ),
             Divider(),
             _buildSectionTitle('${widget.description} Services'),
-            _buildServiceCards(currentServiceItems),
+            _buildServiceCards(currentServiceItems.take(2).toList()), // Show only the first two service items
             SizedBox(height: 20),
             Divider(),
             _buildSectionTitle('Booking Time'),
@@ -297,152 +300,149 @@ class _BookingPageState extends State<BookingPage> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Text(
         title,
-        style: GoogleFonts.adamina(
-            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+        style: GoogleFonts.poppins(
+          textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
     );
-    
   }
 
-  
-  Widget _buildDateTimePicker(
-      String label, String value, VoidCallback onPressed) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        
-        SizedBox(height: 4),
-        TextButton(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.all(8.0),
-            backgroundColor: Colors.black,
+  Widget _buildDateTimePicker(String label, String value, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 16)),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.black54),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            padding: EdgeInsets.all(8),
+            child: Text(value, style: TextStyle(fontSize: 16)),
           ),
-          child: Text(value, style: TextStyle(color: Colors.white)),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildServiceCards(List<Map<String, String>> items) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          ...items.map((item) {
-            final isSelected = selectedServiceTitles.contains(item['title']);
-            return AnimatedScale(
-              scale: isSelected ? 1.1 : 1.0,
-              duration: Duration(milliseconds: 200),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    if (isSelected) {
-                      selectedServiceTitles.remove(item['title']);
-                    } else {
-                      selectedServiceTitles.add(item['title']!);
-                    }
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0)),
-                    elevation: isSelected ? 8.0 : 4.0,
-                    color: isSelected ? Colors.black : Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(12.0)),
-                          child: Image.network(
-                            item['imageUrl'] ?? '',
-                            height: 120,
-                            width: 138,
-                            fit: BoxFit.cover,
+Widget _buildServiceCards(List<Map<String, String>> items) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Row for "View All" button at the top-right of the services section
+      Padding(
+        padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end, // Aligns to the right
+          children: [
+            GestureDetector(
+              onTap: () {
+                // Pass serviceItems and the selected category (widget.description) to the Services page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Services(
+                      serviceItems: serviceItems,
+                      selectedCategory: widget.description, // Pass the selected category
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue, // Customize text color
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Horizontal scrolling service cards
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            // Map over the service items and create the cards
+            ...items.map((item) {
+              final isSelected = selectedServiceTitles.contains(item['title']);
+              return AnimatedScale(
+                scale: isSelected ? 1.1 : 1.0,
+                duration: Duration(milliseconds: 200),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selectedServiceTitles.remove(item['title']);
+                      } else {
+                        selectedServiceTitles.add(item['title']!);
+                      }
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0)),
+                      elevation: isSelected ? 8.0 : 4.0,
+                      color: isSelected ? Colors.black : Colors.white,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(12.0)),
+                            child: Image.network(
+                              item['imageUrl'] ?? '',
+                              height: 120,
+                              width: 138,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item['title'] ?? '',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color:
-                                      isSelected ? Colors.white : Colors.black,
-                                ),
-                              ),
-                              if (item['price'] !=
-                                  null) // Display price if available
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  item['price']!,
+                                  item['title'] ?? '',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
                                     color: isSelected
                                         ? Colors.white
                                         : Colors.black,
                                   ),
                                 ),
-                            ],
+                                if (item['price'] != null) // Display price if available
+                                  Text(
+                                    item['price']!,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-          // Add "View All" button at the end
-GestureDetector(
-  onTap: () {
-    // Pass serviceItems and the selected category (widget.description) to the Services page
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Services(
-          serviceItems: serviceItems,
-          selectedCategory: widget.description, // Pass the selected category
+              );
+            }).toList(),
+          ],
         ),
       ),
-    );
-  },
-  child: Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0)),
-      elevation: 4.0,
-      color: Colors.white,
-      child: Container(
-        width: 138,
-        height: 180, // Adjust height to match other cards
-        child: Center(
-          child: Text(
-            'View All',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-      ),
-    ),
-  ),
-),
+    ],
+  );
+}
 
-
-        ],
-      ),
-    );
-  }
 }
