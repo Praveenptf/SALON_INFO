@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:saloon_app/All%20items.dart';
 import 'package:saloon_app/parlours.dart';
-import 'package:saloon_app/slider.dart';
+import 'package:saloon_app/slider.dart'; // Import your ImageCarousel widget
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,11 +9,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _showAllCards = true;
+  List<Map<String, String>> recentlyViewedShops = [];
 
-  get title => null;
-
-  get imageUrl => null; // Set to true to show cards
+  // Call this function when a parlour is viewed
+  void addRecentlyViewed(Map<String, String> parlour) {
+    setState(() {
+      recentlyViewedShops.removeWhere((shop) =>
+          shop['shopName'] == parlour['shopName']); // Remove duplicates
+      recentlyViewedShops.insert(
+          0, parlour); // Add to the beginning of the list
+      if (recentlyViewedShops.length > 5) {
+        recentlyViewedShops
+            .removeLast(); // Keep the list to a maximum of 5 items
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             onPressed: () {
               // Handle favorite icon button tap
-              // You can add functionality here, like navigating to a favorites page or updating state
             },
           ),
         ],
@@ -79,7 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
             // Service Categories
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GridView.count(
+              child: // Replace the service categories with actual parlour details
+                  GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
@@ -87,98 +96,92 @@ class _HomeScreenState extends State<HomeScreen> {
                   ServiceCategory(
                     icon: Icons.cut,
                     label: 'Hair & Beard',
-                    destinationPage: Parlours(
-                        serviceFilter: 'Hair Cut'), // Pass 'Hair Cut' filter
+                    serviceFilter: 'Hair Cut',
+                    parlourDetails: {
+                      'shopName': 'Glamour Beauty Salon',
+                      'address': 'Alappy Beauty St, Alappuzha',
+                      'contactNumber': '+91 6703456789',
+                      'description': 'Hair Cut',
+                      'imageUrl':
+                          'https://content.jdmagicbox.com/comp/alappuzha/u2/0477px477.x477.230322194815.j8u2/catalogue/p040lrdauigeji8-v9vsr95h1g.jpg?clr=',
+                    },
+                    onViewed: addRecentlyViewed,
                   ),
                   ServiceCategory(
                     icon: Icons.brush,
                     label: 'Nails',
-                    destinationPage:
-                        Parlours(serviceFilter: 'Nails'), // Pass 'Nails' filter
+                    serviceFilter: 'Nails',
+                    parlourDetails: {
+                      'shopName': 'Glamour Alpite',
+                      'address': 'Alappy Beauty St, Alappuzha',
+                      'contactNumber': '+91 6703456789',
+                      'description': 'Nails',
+                      'imageUrl':
+                          'https://content.jdmagicbox.com/comp/alappuzha/u2/0477px477.x477.230322194815.j8u2/catalogue/p040lrdauigeji8-v9vsr95h1g.jpg?clr=',
+                    },
+                    onViewed: addRecentlyViewed,
                   ),
                   ServiceCategory(
                     icon: Icons.face,
                     label: 'Skin',
-                    destinationPage:
-                        Parlours(serviceFilter: 'Skin'), // Pass 'Skin' filter
+                    serviceFilter: 'Skin',
+                    parlourDetails: {
+                      'shopName': 'Beauty Lounge',
+                      'address': 'MG Road, Kochi',
+                      'contactNumber': '+91 1234567890',
+                      'description': 'Skin',
+                      'imageUrl':
+                          'https://media.istockphoto.com/id/1325440885/photo/retro-styled-beauty-salon.jpg?s=612x612&w=0&k=20&c=uEdh3ypS-Zeq9X5YJzIfBaiaoFYstRFNowZBTbQWT8I=',
+                    },
+                    onViewed: addRecentlyViewed,
                   ),
                   ServiceCategory(
                     icon: Icons.spa,
                     label: 'Spa',
-                    destinationPage:
-                        Parlours(serviceFilter: 'Spa'), // Pass 'Spa' filter
+                    serviceFilter: 'Spa',
+                    parlourDetails: {
+                      'shopName': 'Urban Chic Salon',
+                      'address': 'Linking Road, Ernakulam',
+                      'contactNumber': '+91 0987654321',
+                      'description': 'Spa',
+                      'imageUrl':
+                          'https://img.freepik.com/premium-photo/beauty-salon-interior-chairs-mirrors-pink-hairdressing-shop-generative-ai-inside-beauty-studio-spa-room-clean-empty-trendy-salon-store-fashion-glamour-design-concept_788189-10319.jpg',
+                    },
+                    onViewed: addRecentlyViewed,
                   ),
                 ],
               ),
             ),
             SizedBox(height: 20),
+            // Recently Viewed Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Most Viewed',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AllItemsScreen()),
-                      );
-                    },
-                    child: Text(
-                      'View All',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Recently Viewed',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             SizedBox(height: 10),
-            // Square Shape Cards in Grid Layout
-            Container(
-              height: 300, // Adjust height as needed
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _showAllCards
-                  ? GridView.count(
-                      crossAxisCount: 2, // Changed to 2 cards per row
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      childAspectRatio:
-                          0.8, // Adjusted to fit two cards per row
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      children: <Widget>[
-                        FeaturedServiceCard(
-                          imageUrl:
-                              'https://i.pinimg.com/736x/5c/57/48/5c5748d76c36d8d8a313bf3b56d79985.jpg',
-                          icon: Icons.star,
-                          title: 'Haircut',
-                          rating: 4,
-                          onTap: () {
-                            // Handle card tap
-                          },
-                        ),
-                        FeaturedServiceCard(
-                          imageUrl:
-                              'https://thebeardclub.com/cdn/shop/articles/Trim_Your_Beard_2_3202ea96-9f43-43af-bc17-81955f6ddabc.jpg?v=1651237993&width=1920',
-                          icon: Icons.star,
-                          title: 'Beard Trim',
-                          rating: 4.0,
-                          onTap: () {
-                            // Handle card tap
-                          },
-                        ),
-                      ],
-                    )
-                  : Center(child: Text('No cards to display')),
-            ),
+            recentlyViewedShops.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: recentlyViewedShops.map((shop) {
+                        return RecentlyViewedCard(shop: shop);
+                      }).toList(),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'No recently viewed parlours yet.',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  ),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -189,21 +192,31 @@ class _HomeScreenState extends State<HomeScreen> {
 class ServiceCategory extends StatelessWidget {
   final IconData icon;
   final String label;
-  final Widget destinationPage;
+  final String serviceFilter;
+  final Function(Map<String, String>) onViewed;
+  final Map<String, String> parlourDetails; // Add parlour details parameter
 
   ServiceCategory({
     required this.icon,
     required this.label,
-    required this.destinationPage,
+    required this.serviceFilter,
+    required this.onViewed,
+    required this.parlourDetails, // Initialize it
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Add to recently viewed with actual parlour details
+        onViewed(parlourDetails);
+
+        // Navigate to the Parlours page
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => destinationPage),
+          MaterialPageRoute(
+            builder: (context) => Parlours(serviceFilter: serviceFilter),
+          ),
         );
       },
       child: Container(
@@ -240,3 +253,28 @@ class ServiceCategory extends StatelessWidget {
   }
 }
 
+class RecentlyViewedCard extends StatelessWidget {
+  final Map<String, String> shop;
+
+  RecentlyViewedCard({required this.shop});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        leading: Image.network(
+          shop['imageUrl']!,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        ),
+        title: Text(shop['shopName']!),
+        subtitle: Text(shop['address']!),
+        onTap: () {
+          // Navigate to booking details or another page
+        },
+      ),
+    );
+  }
+}

@@ -250,6 +250,7 @@ class _BookingPageState extends State<BookingPage> {
                     selectedDate != null
                         ? DateFormat.yMMMd().format(selectedDate!)
                         : 'Pick a date',
+                        
                     () => _selectDate(context)),
                 _buildDateTimePicker(
                     'Time',
@@ -313,14 +314,14 @@ class _BookingPageState extends State<BookingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 16)),
+          Text(label, style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold)),
           Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black54),
+            decoration: BoxDecoration(color: Colors.black,
+              border: Border.all(color: Colors.black),
               borderRadius: BorderRadius.circular(5),
             ),
             padding: EdgeInsets.all(8),
-            child: Text(value, style: TextStyle(fontSize: 16)),
+            child: Text(value, style: TextStyle(fontSize: 16,color: Colors.white)),
           ),
         ],
       ),
