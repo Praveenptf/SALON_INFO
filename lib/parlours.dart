@@ -15,7 +15,7 @@ class Parlours extends StatelessWidget {
         'shopName': 'Glamour Beauty Salon',
         'address': 'Alappy Beauty St, Alappuzha',
         'contactNumber': '+91 6703456789',
-        'description': 'Hair Cut',
+        'description': 'Hair',
         'imageUrl': 'https://content.jdmagicbox.com/comp/alappuzha/u2/0477px477.x477.230322194815.j8u2/catalogue/p040lrdauigeji8-v9vsr95h1g.jpg?clr=',
       },
       {
@@ -39,12 +39,65 @@ class Parlours extends StatelessWidget {
         'description': 'Spa',
         'imageUrl': 'https://img.freepik.com/premium-photo/beauty-salon-interior-chairs-mirrors-pink-hairdressing-shop-generative-ai-inside-beauty-studio-spa-room-clean-empty-trendy-salon-store-fashion-glamour-design-concept_788189-10319.jpg',
       },
+      {
+        'shopName': 'XPressions Studio',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Spa,Nails,Skin',
+        'imageUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROIbEGhJbL6vQPWErlalF5m8vMpZFKd15kLg&s',
+      },
+      {
+        'shopName': 'Level-Up Salon',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Spa,Hair,Skin,Nails',
+        'imageUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQpcNd_c7o84c9e-swrPwKlTXle08cAqyOqg&s',
+      },
+      {
+        'shopName': 'Haus of Glamour',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Spa,Nails,Skin',
+        'imageUrl': 'https://i.pinimg.com/736x/76/21/bb/7621bb6087ee02d1c51a38663c88e6b0.jpg',
+      },
+      {
+        'shopName': '#1 Cuts',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Hair',
+        'imageUrl': 'https://5.imimg.com/data5/RT/SB/MY-44013394/salon-interior-designing-500x500.jpg',
+      },
+      {
+        'shopName': 'The Style Zone',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Hair,Nails,Skin,Spa',
+        'imageUrl': 'https://media.istockphoto.com/id/1288801785/photo/barber-shop.jpg?s=612x612&w=0&k=20&c=R4e9Ts7MaRN2DaGTebLtiu_ThxRk2cGUefbQneL90ro=',
+      },
+      {
+        'shopName': 'The Cleanup',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Spa, Hair',
+        'imageUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ6HSLXxCRhwwlMOo3R0zZfR5Edy5Vl2w6rQ&s',
+      },
+      {
+        'shopName': 'Uptown Hair',
+        'address': 'Linking Road, Ernakulam',
+        'contactNumber': '+91 0987654321',
+        'description': 'Hair',
+        'imageUrl': 'https://cdn-kdndj.nitrocdn.com/zFJGHiQUbCUVpuNMivpHUVgINgwDIBkZ/assets/images/optimized/rev-16f8ade/www.huxleyandco.co.uk/wp-content/uploads/2024/04/Salon-Shopfront-1170x684.jpeg',
+      },
     ];
 
     // Filter the parlour shops based on the service filter
-    final filteredShops = parlourShops.where((shop) {
-      return shop['description']!.toLowerCase() == serviceFilter.toLowerCase();
-    }).toList();
+ // Filter the parlour shops based on the service filter
+final filteredShops = parlourShops.where((shop) {
+  final services = shop['description']!.split(','); // Split by comma
+  return services.any((service) => service.trim().toLowerCase() == serviceFilter.toLowerCase());
+}).toList();
+
+
 
     return Scaffold(
       appBar: AppBar(

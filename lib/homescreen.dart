@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ServiceCategory(
                     icon: Icons.cut,
                     label: 'Hair & Beard',
-                    serviceFilter: 'Hair Cut',
+                    serviceFilter: 'Hair',
                     parlourDetails: {
                       'shopName': 'Glamour Beauty Salon',
                       'address': 'Alappy Beauty St, Alappuzha',

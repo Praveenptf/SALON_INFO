@@ -34,7 +34,7 @@ class _BookingPageState extends State<BookingPage> {
 
   // Define service items for each category
   final Map<String, List<Map<String, String>>> serviceItems = {
-    'Hair Cut': [
+    'Hair': [
       {
         'title': 'Classic Haircut',
         'imageUrl':
@@ -53,6 +53,7 @@ class _BookingPageState extends State<BookingPage> {
             'https://i0.wp.com/therighthairstyles.com/wp-content/uploads/2021/09/7-low-fade-haircut.jpg?resize=500%2C570',
         'price': '\$25',
       },
+      
     ],
     'Spa': [
       {
