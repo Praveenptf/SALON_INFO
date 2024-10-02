@@ -39,17 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.favorite_border,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              // Handle favorite icon button tap
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(

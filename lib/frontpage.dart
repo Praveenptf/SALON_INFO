@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saloon_app/homescreen.dart';
 import 'package:saloon_app/loginscreen.dart';
 import 'package:saloon_app/RegisterPage.dart';
 
@@ -57,7 +58,7 @@ class MyHomePage extends StatelessWidget {
                 SizedBox(height: 70.0), // Adding some space between text and buttons
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(250, 50),

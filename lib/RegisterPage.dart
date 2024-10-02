@@ -53,7 +53,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
   //bool _isConfirmPasswordVisible = false;
 
   
-  final String _backendUrl = 'http://192.168.1.41:8086/user/UserReg'; 
+  final String _backendUrl = 'http://192.168.1.27:8086/user/UserReg'; 
 
   
   Future<void> _registerUser() async {
@@ -63,6 +63,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
       'phoneNumber': _mobileNumber,
       'email': _email,
       'password': _password,
+      'gender':"",
     };
 
     try {

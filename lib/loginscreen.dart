@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:saloon_app/RegisterPage.dart';
+import 'dart:convert'; // For JSON encoding/decoding
 import 'package:saloon_app/homepage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,18 +19,11 @@ class _LoginPageState extends State<LoginPage> {
 
   String? _usernameValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your username';
-    }
-    if (value.length < 4) {
-      return 'Username must be at least 4 characters long';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-      return 'Username can only contain letters, numbers, and underscores';
+      return 'Please enter your phone number';
     }
     return null;
   }
 
-  // Only validate that the password is at least 8 characters long
   String? _passwordValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your password';
@@ -37,6 +32,34 @@ class _LoginPageState extends State<LoginPage> {
       return 'Password must be at least 8 characters long';
     }
     return null;
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState!.validate()) {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.27:8086/user/UserLogin'), 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'phoneNumber': _phoneNumberController.text,
+          'password': _passwordController.text,
+        }),
+      );
+
+      if (response.statusCode >= 200 && response.statusCode <300 ) {
+        // If the server returns an OK response, navigate to the HomePage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        // If the server did not return an OK response, show an error message
+        setState(() {
+          _loginError = true; // Set login error state
+        });
+      }
+    }
   }
 
   @override
@@ -143,27 +166,27 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           validator: _passwordValidator,
                         ),
+                        if (_loginError) ...[ // Display error message if login fails
+                          SizedBox(height: 10),
+                          Text(
+                            'Invalid credentials. Please try again.',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
                         SizedBox(height: 16.0),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.grey,
                           ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              // If both fields pass validation, navigate to the HomePage
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomePage()));
-                            }
-                          },
+                          onPressed: _login, // Call the login function
                           child: Text(
                             'LOGIN',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                         SizedBox(height: 130),
-                        Row(mainAxisAlignment: MainAxisAlignment.center,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'Don\'t have an account?',
@@ -175,10 +198,11 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             TextButton(
                               onPressed: () {
+                                // Navigate to Sign Up page
+                                // Assuming you have a SignUpPage
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomePage()),
+                                  MaterialPageRoute(builder: (context) => SignupPage()),
                                 );
                               },
                               child: Text(

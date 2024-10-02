@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:saloon_app/Booking%20details.dart';
 
-class Parlours extends StatelessWidget {
-  final String serviceFilter; // New parameter for filtering services
+class Parlours extends StatefulWidget {
+  final String serviceFilter;
 
   const Parlours({super.key, required this.serviceFilter});
 
   @override
-  Widget build(BuildContext context) {
-    // List of all parlour shops
-    final parlourShops = [
+  _ParloursState createState() => _ParloursState();
+}
+
+class _ParloursState extends State<Parlours> {
+  TextEditingController searchController = TextEditingController();
+  List<Map<String, String>> parlourShops = [];
+  List<Map<String, String>> filteredShops = [];
+  bool isSearchVisible = false; // Track visibility of the search field
+
+  @override
+  void initState() {
+    super.initState();
+    parlourShops = [
       {
         'shopName': 'Glamour Beauty Salon',
         'address': 'Alappy Beauty St, Alappuzha',
@@ -53,60 +63,73 @@ class Parlours extends StatelessWidget {
         'description': 'Spa,Hair,Skin,Nails',
         'imageUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQpcNd_c7o84c9e-swrPwKlTXle08cAqyOqg&s',
       },
-      {
-        'shopName': 'Haus of Glamour',
-        'address': 'Linking Road, Ernakulam',
-        'contactNumber': '+91 0987654321',
-        'description': 'Spa,Nails,Skin',
-        'imageUrl': 'https://i.pinimg.com/736x/76/21/bb/7621bb6087ee02d1c51a38663c88e6b0.jpg',
-      },
-      {
-        'shopName': '#1 Cuts',
-        'address': 'Linking Road, Ernakulam',
-        'contactNumber': '+91 0987654321',
-        'description': 'Hair',
-        'imageUrl': 'https://5.imimg.com/data5/RT/SB/MY-44013394/salon-interior-designing-500x500.jpg',
-      },
-      {
-        'shopName': 'The Style Zone',
-        'address': 'Linking Road, Ernakulam',
-        'contactNumber': '+91 0987654321',
-        'description': 'Hair,Nails,Skin,Spa',
-        'imageUrl': 'https://media.istockphoto.com/id/1288801785/photo/barber-shop.jpg?s=612x612&w=0&k=20&c=R4e9Ts7MaRN2DaGTebLtiu_ThxRk2cGUefbQneL90ro=',
-      },
-      {
-        'shopName': 'The Cleanup',
-        'address': 'Linking Road, Ernakulam',
-        'contactNumber': '+91 0987654321',
-        'description': 'Spa, Hair',
-        'imageUrl': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ6HSLXxCRhwwlMOo3R0zZfR5Edy5Vl2w6rQ&s',
-      },
-      {
-        'shopName': 'Uptown Hair',
-        'address': 'Linking Road, Ernakulam',
-        'contactNumber': '+91 0987654321',
-        'description': 'Hair',
-        'imageUrl': 'https://cdn-kdndj.nitrocdn.com/zFJGHiQUbCUVpuNMivpHUVgINgwDIBkZ/assets/images/optimized/rev-16f8ade/www.huxleyandco.co.uk/wp-content/uploads/2024/04/Salon-Shopfront-1170x684.jpeg',
-      },
     ];
 
-    // Filter the parlour shops based on the service filter
- // Filter the parlour shops based on the service filter
-final filteredShops = parlourShops.where((shop) {
-  final services = shop['description']!.split(','); // Split by comma
-  return services.any((service) => service.trim().toLowerCase() == serviceFilter.toLowerCase());
-}).toList();
+    // Initially filter based on the serviceFilter passed to the constructor
+    filteredShops = parlourShops.where((shop) {
+      final services = shop['description']!.split(',');
+      return services.any((service) => service.trim().toLowerCase() == widget.serviceFilter.toLowerCase());
+    }).toList();
+  }
 
+  void _filterShops(String query) {
+    setState(() {
+      filteredShops = parlourShops.where((shop) {
+        final shopName = shop['shopName']!.toLowerCase();
+        final address = shop['address']!.toLowerCase();
+        final services = shop['description']!.split(',').map((s) => s.trim().toLowerCase()).toList();
+        final contact = shop['contactNumber']!.toLowerCase();
+        final searchQuery = query.toLowerCase();
 
+        // Filter only the shops that match the selected service filter
+        return (shopName.contains(searchQuery) ||
+                address.contains(searchQuery) ||
+                services.any((service) => service.contains(searchQuery)) ||
+                contact.contains(searchQuery)) &&
+               services.contains(widget.serviceFilter.toLowerCase());
+      }).toList();
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text(
-          'Parlours - $serviceFilter',
-          style: GoogleFonts.adamina(color: Colors.white),
-        ),
+        title: isSearchVisible
+            ? TextField(
+                controller: searchController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter search term',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) {
+                  _filterShops(value);
+                },
+              )
+            : Text(
+                'Parlours - ${widget.serviceFilter}',
+                style: GoogleFonts.adamina(color: Colors.white),
+              ),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: Icon(isSearchVisible ? Icons.clear : Icons.search), // Toggle icon based on visibility
+            onPressed: () {
+              setState(() {
+                if (isSearchVisible) {
+                  searchController.clear();
+                  _filterShops(''); // Reset the filtered list
+                  isSearchVisible = false;
+                } else {
+                  isSearchVisible = true;
+                }
+              });
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -127,7 +150,6 @@ final filteredShops = parlourShops.where((shop) {
     );
   }
 }
-
 
 class ParlourShopCard extends StatelessWidget {
   final String shopName;
@@ -213,14 +235,18 @@ class ParlourShopCard extends StatelessWidget {
                       contactNumber: contactNumber,
                       description: description,
                     ),
-                  ),
-                );
-              },
-              child: const Text('View Details'),
+                                  ),
+              );
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white, backgroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
             ),
-          ],
-        ),
+            child: const Text('View Details'),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
