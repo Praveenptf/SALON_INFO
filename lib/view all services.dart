@@ -25,7 +25,7 @@ class _ServicesState extends State<Services> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.selectedCategory} Services'),
+        title: Text('${widget.selectedCategory} Services',style: TextStyle(color: Colors.white),),
         backgroundColor: Colors.black,
         iconTheme: IconThemeData(color: Colors.white),
         actions: [

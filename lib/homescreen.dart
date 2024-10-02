@@ -19,10 +19,15 @@ class _HomeScreenState extends State<HomeScreen> {
       recentlyViewedShops.insert(
           0, parlour); // Add to the beginning of the list
       if (recentlyViewedShops.length > 5) {
-        recentlyViewedShops
-            .removeLast(); // Keep the list to a maximum of 5 items
+        recentlyViewedShops.removeLast(); // Keep the list to a maximum of 5 items
       }
     });
+  }
+
+  void _openLocation() {
+    // Handle location button tap, e.g., open a map or location settings
+    print("Location button tapped");
+    // You can add your location handling logic here
   }
 
   @override
@@ -39,6 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.location_on, color: Colors.white),
+            onPressed: _openLocation,
+            tooltip: 'Location',
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -255,6 +267,7 @@ class RecentlyViewedCard extends StatelessWidget {
         leading: Image.network(
           shop['imageUrl']!,
           width: 50,
+
           height: 50,
           fit: BoxFit.cover,
         ),
