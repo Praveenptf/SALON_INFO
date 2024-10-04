@@ -233,7 +233,7 @@ class ParlourShopCard extends StatelessWidget {
                       shopName: shopName,
                       shopAddress: address,
                       contactNumber: contactNumber,
-                      description: description,
+                      description: description, parlourDetails: {},
                     ),
                                   ),
               );

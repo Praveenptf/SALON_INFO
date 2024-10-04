@@ -18,7 +18,7 @@ class BookingPage extends StatefulWidget {
     required this.shopName,
     required this.shopAddress,
     required this.contactNumber,
-    required this.description,
+    required this.description, required Map<String, String> parlourDetails,
   });
 
   @override

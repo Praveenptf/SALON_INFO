@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:saloon_app/Location.dart';
 import 'package:saloon_app/parlours.dart';
 import 'package:saloon_app/slider.dart'; // Import your ImageCarousel widget
 
@@ -24,12 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _openLocation() {
-    // Handle location button tap, e.g., open a map or location settings
-    print("Location button tapped");
-    // You can add your location handling logic here
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,11 +39,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         automaticallyImplyLeading: false,
-        actions: [
+         actions: [
           IconButton(
-            icon: Icon(Icons.location_on, color: Colors.white),
-            onPressed: _openLocation,
-            tooltip: 'Location',
+            icon: Icon(Icons.location_on,color: Colors.white,),
+            onPressed: () {
+              // Navigate to the LocationPage when the location button is pressed
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LocationPage()),
+              );
+            },
           ),
         ],
       ),
