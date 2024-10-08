@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:saloon_app/homescreen.dart'; 
 import 'package:saloon_app/profile.dart';
 
 
@@ -15,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    HomeScreen(),
+    HomePage(),
     ProfileScreen(),
   ];
 

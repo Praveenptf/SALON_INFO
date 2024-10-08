@@ -33,9 +33,11 @@ dependencies:
   email_validator: ^3.0.0
   flutter:
     sdk: flutter
+  flutter_map: ^7.0.2
   flutter_rating_bar: ^4.0.1
   font_awesome_flutter: ^10.7.0
   google_fonts: ^6.2.1
+  google_maps_flutter: ^2.9.0
   google_places_flutter: ^2.0.9
   http: ^1.2.2
   image_picker: ^1.1.2

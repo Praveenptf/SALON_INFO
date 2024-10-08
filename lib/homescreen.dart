@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Navigate to the LocationPage when the location button is pressed
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LocationPage()),
+                MaterialPageRoute(builder: (context) => Mappage()),
               );
             },
           ),
