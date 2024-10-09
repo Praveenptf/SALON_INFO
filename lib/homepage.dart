@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:saloon_app/profile.dart';
-
+import 'package:google_fonts/google_fonts.dart';
+import 'package:saloon_app/profile.dart'; // Ensure ProfileScreen is imported
+import 'package:saloon_app/Location.dart';
+import 'package:saloon_app/slider.dart'; // Import your ImageCarousel widget
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,9 +16,67 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    HomePage(),
-    ProfileScreen(),
+    const SizedBox(), // Placeholder for HomeScreen content
+    ProfileScreen(), // Profile screen for the second tab
   ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Widget _buildHomeScreen() {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text(
+          "Salon Info",
+          style: GoogleFonts.adamina(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.location_on, color: Colors.white),
+            onPressed: () {
+              // Navigate to the LocationPage when the location button is pressed
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Mappage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Header Image
+            ImageCarousel(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Welcome to Salon Info',
+                style: GoogleFonts.adamina(
+                    fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Explore Our Services and Book your Appointment Easily',
+                style: GoogleFonts.adamina(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void onTabTapped(int index) {
     setState(() {
@@ -27,7 +87,7 @@ class _HomePageState extends State<HomePage> {
   Future<bool> _onWillPop() async {
     if (_currentIndex == 0) {
       // Show confirmation dialog
-      final result = await showDialog<bool>(
+      final result = await showDialog<bool>( // Confirm exit dialog
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -54,9 +114,9 @@ class _HomePageState extends State<HomePage> {
       if (result == true) {
         // Exit the app
         SystemNavigator.pop();
-        return false; // Return false to prevent any additional pop action
+        return false; // Prevent any additional pop action
       }
-      return false; // Return false to prevent any additional pop action
+      return false; // Prevent any additional pop action
     } else {
       // Not on the home page, navigate to the home page
       setState(() {
@@ -71,7 +131,7 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        body: _children[_currentIndex],
+        body: _currentIndex == 0 ? _buildHomeScreen() : _children[1],
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
@@ -100,5 +160,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
