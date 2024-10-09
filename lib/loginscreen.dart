@@ -5,6 +5,7 @@ import 'package:saloon_app/RegisterPage.dart';
 import 'dart:convert'; // For JSON encoding/decoding
 import 'package:saloon_app/homepage.dart';
 
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();

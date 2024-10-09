@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:saloon_app/homepage.dart';
+
 import 'package:saloon_app/RegisterPage.dart';
 
 class MyHomePage extends StatelessWidget {
