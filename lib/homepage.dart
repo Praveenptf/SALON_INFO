@@ -15,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0; // Index to track selected tab
 
   final List<Map<String, String>> parlourShops = [
-  {
+    {
       'shopName': 'Glamour Beauty Salon',
       'address': 'Alappy Beauty St, Alappuzha',
       'contactNumber': '+91 6703456789',
@@ -99,63 +99,69 @@ class _HomePageState extends State<HomePage> {
           ],
           automaticallyImplyLeading: false,
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ImageCarousel(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Welcome to Salon Info',
-                style: GoogleFonts.adamina(
-                    fontSize: 24, fontWeight: FontWeight.bold),
+        body: SingleChildScrollView(
+          // Wrap the body in SingleChildScrollView
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ImageCarousel(),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Welcome to Salon Info',
+                  style: GoogleFonts.adamina(
+                      fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Explore Our Services and Book your Appointment Easily',
-                style: GoogleFonts.adamina(fontSize: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Explore Our Services and Book your Appointment Easily',
+                  style: GoogleFonts.adamina(fontSize: 16),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Available Services',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Parlours(
-                            parlourShops: parlourShops,
-                            serviceFilter: '',
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Available Services',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Parlours(
+                              parlourShops: parlourShops,
+                              serviceFilter: '',
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    child: Text('View All'),
-                  ),
-                ],
+                        );
+                      },
+                      child: Text('View All'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: GridView.builder(
+              SizedBox(height: 10),
+              GridView.builder(
+                shrinkWrap:
+                    true, // Allows the GridView to be scrollable within SingleChildScrollView
+                physics:
+                    NeverScrollableScrollPhysics(), // Disable GridView's scroll
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 0.8,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
-                itemCount: parlourShops.length,
+                itemCount:
+                    parlourShops.take(4).length, // Limit to first 4 items
                 itemBuilder: (context, index) {
                   final shop = parlourShops[index];
                   return GestureDetector(
@@ -246,16 +252,16 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-              ),
-            ),
-          ],
+              )
+            ],
+          ),
         ),
       ),
       ProfileScreen(), // Replace with your actual ProfilePage
     ];
 
     return Scaffold(
-      body: _pages[_selectedIndex], // Display the selected page
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -268,9 +274,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
       ),
     );
   }
