@@ -4,6 +4,7 @@ import 'package:saloon_app/Location.dart';
 import 'package:saloon_app/parlours.dart';
 import 'package:saloon_app/slider.dart'; // Import your ImageCarousel widget
 import 'package:saloon_app/Booking%20details.dart'; // Import your BookingPage
+import 'package:saloon_app/profile.dart'; // Import your ProfilePage
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,10 +12,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
+  int _selectedIndex = 0; // Index to track selected tab
 
   final List<Map<String, String>> parlourShops = [
-    {
+  {
       'shopName': 'Glamour Beauty Salon',
       'address': 'Alappy Beauty St, Alappuzha',
       'contactNumber': '+91 6703456789',
@@ -64,182 +65,212 @@ class _HomePageState extends State<HomePage> {
     },
   ];
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Salon Info",
-          style: GoogleFonts.adamina(
-            fontSize: 25,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.location_on, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Mappage()),
-              );
-            },
-          ),
-        ],
-        automaticallyImplyLeading: false,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ImageCarousel(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Welcome to Salon Info',
-              style: GoogleFonts.adamina(
-                  fontSize: 24, fontWeight: FontWeight.bold),
+    // Define the pages to display
+    final List<Widget> _pages = [
+      Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text(
+            "Salon Info",
+            style: GoogleFonts.adamina(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Explore Our Services and Book your Appointment Easily',
-              style: GoogleFonts.adamina(fontSize: 16),
-            ),
-          ),
-          SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.spaceBetween, // Aligns text and button
-              children: [
-                Text(
-                  'Available Services',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Parlours(
-                          parlourShops: parlourShops,
-                          serviceFilter: '',
-                        ),
-                      ),
-                    );
-                  },
-                  child: Text('View All'),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: parlourShops.length,
-              itemBuilder: (context, index) {
-                final shop = parlourShops[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookingPage(
-                          imageUrl: shop['imageUrl']!,
-                          title: shop['shopName']!,
-                          shopName: shop['shopName']!,
-                          shopAddress: shop['address']!,
-                          contactNumber: shop['contactNumber']!,
-                          description: shop['description']!,
-                          parlourDetails: {},
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                shop['imageUrl']!,
-                                width: double.infinity,
-                                height: 120,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              shop['shopName']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 16,
-                                  color: Colors.black),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              shop['description']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  color: Colors.black),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              shop['address']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
-                                  color: Colors.black), // Changed to black
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              shop['contactNumber']!,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
-                                  color: Colors.black), // Changed to black
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.location_on, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Mappage()),
                 );
               },
             ),
+          ],
+          automaticallyImplyLeading: false,
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            ImageCarousel(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Welcome to Salon Info',
+                style: GoogleFonts.adamina(
+                    fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Explore Our Services and Book your Appointment Easily',
+                style: GoogleFonts.adamina(fontSize: 16),
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Available Services',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Parlours(
+                            parlourShops: parlourShops,
+                            serviceFilter: '',
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text('View All'),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.8,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: parlourShops.length,
+                itemBuilder: (context, index) {
+                  final shop = parlourShops[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookingPage(
+                            imageUrl: shop['imageUrl']!,
+                            title: shop['shopName']!,
+                            shopName: shop['shopName']!,
+                            shopAddress: shop['address']!,
+                            contactNumber: shop['contactNumber']!,
+                            description: shop['description']!,
+                            parlourDetails: {},
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.network(
+                                  shop['imageUrl']!,
+                                  width: double.infinity,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                shop['shopName']!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: Colors.black),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                shop['description']!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    color: Colors.black),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                shop['address']!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
+                                    color: Colors.black),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                shop['contactNumber']!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 12,
+                                    color: Colors.black),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      ProfileScreen(), // Replace with your actual ProfilePage
+    ];
+
+    return Scaffold(
+      body: _pages[_selectedIndex], // Display the selected page
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
       ),
     );
   }
