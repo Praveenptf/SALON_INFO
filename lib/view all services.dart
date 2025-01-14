@@ -1,208 +1,369 @@
 import 'package:flutter/material.dart';
-import 'package:saloon_app/cart%20page.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:saloon_app/Cartmodel.dart';
+import 'Cart.dart'; // Import your Cartpage
 
-class Services extends StatefulWidget {
-  final Map<String, List<Map<String, String>>> serviceItems;
-  final String selectedCategory;
+class ServicePage extends StatefulWidget {
+  final List<Map<String, dynamic>> services; // Keep this as dynamic
 
-  const Services({
-    super.key,
-    required this.serviceItems,
-    required this.selectedCategory,
-  });
+  const ServicePage({super.key, required this.services});
 
   @override
-  _ServicesState createState() => _ServicesState();
+  State<ServicePage> createState() => _ServicePageState();
 }
 
-class _ServicesState extends State<Services> {
-  List<Map<String, String>> _cartItems = [];
-  List<int> _selectedIndices = [];
+class _ServicePageState extends State<ServicePage> {
+  String _selectedFilter = 'All';
+  late ScrollController _scrollController;
+  bool _isFilterVisible = true;
 
   @override
-  Widget build(BuildContext context) {
-    final filteredItems = widget.serviceItems[widget.selectedCategory] ?? [];
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('${widget.selectedCategory} Services',style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart),
-            onPressed: _showCart,
-          ),
-         
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: _buildServiceRows(filteredItems),
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
   }
 
-  void _showCart() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => CartPage(cartItems: _cartItems),
-      ),
-    );
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
-  void _addSelectedToCart() {
-    setState(() {
-      final filteredItems = widget.serviceItems[widget.selectedCategory] ?? [];
-      for (var index in _selectedIndices) {
-        _cartItems.add(filteredItems[index]);
+  void _onScroll() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (_isFilterVisible) {
+        setState(() {
+          _isFilterVisible = false;
+        });
       }
-      _selectedIndices.clear();
-    });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Selected items added to cart!')));
-  }
-
-  List<Widget> _buildServiceRows(List<Map<String, String>> items) {
-    List<Widget> rows = [];
-
-    for (int i = 0; i < items.length; i += 2) {
-      List<Widget> rowChildren = [];
-
-      rowChildren.add(Expanded(child: _buildServiceCard(items[i], i)));
-
-      if (i + 1 < items.length) {
-        rowChildren.add(SizedBox(width: 30));
-        rowChildren.add(Expanded(child: _buildServiceCard(items[i + 1], i + 1)));
-      } else {
-        rowChildren.add(SizedBox(width: 30));
-        rowChildren.add(Expanded(child: Container()));
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+      if (!_isFilterVisible) {
+        setState(() {
+          _isFilterVisible = true;
+        });
       }
-
-      rows.add(Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: rowChildren,
-      ));
-
-      rows.add(SizedBox(height: 10));
     }
-
-    return rows;
   }
 
-Widget _buildServiceCard(Map<String, String> service, int index) {
-  const double cardWidth = 170.0; // Fixed width
-  const double cardHeight = 170.0; // Fixed height (adjust as needed)
-  bool isSelected = _selectedIndices.contains(index);
+void addToCart(BuildContext context, Map<String, dynamic> service) {
+  // Add the service to the cart
+  Provider.of<CartModel>(context, listen: false).addItem({
+    'title': service['itemName'],
+    'price': service['price'].toString(),
+    'imageUrl': service['imageUrl'] ?? '', // Ensure you have an image URL
+  });
 
-  return GestureDetector(
-    onTap: () {
-      setState(() {
-        if (isSelected) {
-          _selectedIndices.remove(index);
-        } else {
-          _selectedIndices.add(index);
-        }
-      });
-    },
-    child: Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      elevation: isSelected ? 8.0 : 4.0,
-      child: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                height: cardHeight * 0.65, // Adjust this ratio as needed
-                width: cardWidth,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12.0)),
-                  image: DecorationImage(
-                    image: NetworkImage(service['imageUrl'] ?? ''), // Placeholder URL
-                    fit: BoxFit.cover, // Ensure this is set to 'cover'
-                  ),
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('${service['itemName']} added to cart!'),
+      duration: Duration(seconds: 2),
+    ),
+  );
+}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          "Services",
+          style: TextStyle(color: Colors.deepPurple.shade800),
+        ),
+        iconTheme: IconThemeData(color: Colors.deepPurple.shade800),
+        actions: [
+          Consumer<CartModel>(
+            builder: (context, cart, child) => Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.shopping_cart, color: Colors.deepPurple.shade800),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CartPage(cartItems: cart.cartItems),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      service['title'] ?? '',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                if (cart.cartItems.isNotEmpty)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '${cart.cartItems.length}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    if (service['price'] != null)
-                      Text(
-                        service['price']!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            bottom: -10,
-            right: 5,
-            child: IconButton(
-              icon: Icon(Icons.add_shopping_cart),
-              color: Colors.black,
-              iconSize: 24,
-              onPressed: () {
-                _showConfirmationDialog(service);
-              },
+                  ),
+              ],
             ),
           ),
         ],
       ),
-    ),
-  );
-}
-
-
-
-
-
-void _showConfirmationDialog(Map<String, String> service) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Add to Cart'),
-        content: Text('Are you sure you want to add "${service['title']}" to the cart?'),
-        actions: [
-          TextButton(
-            child: Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+      body: Column(
+        children: [
+          if (_isFilterVisible)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FilterDropdown(
+                    value: _selectedFilter,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedFilter = newValue ?? 'All';
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          Expanded(
+            child: GridView.builder(
+              controller: _scrollController,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount:  2, // Number of items in a row
+                crossAxisSpacing: 8.0, // Spacing between items horizontally
+                mainAxisSpacing: 8.0, // Spacing between items vertically
+                childAspectRatio: 0.65, // Adjusted aspect ratio to prevent overflow
+              ),
+              itemCount: _getFilteredServices().length,
+              itemBuilder: (context, index) {
+                final service = _getFilteredServices()[index];
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Container(
+                    padding: EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Background color for the container
+                      borderRadius: BorderRadius.circular(8.0), // Rounded edges
+                       boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Image placeholder or actual image
+                        Container(
+                          height: 100, // Adjusted height
+                          width: double.infinity, // Full width of the parent container
+                          decoration: BoxDecoration(
+                            color: Colors.grey[500], // Placeholder color
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Center(
+                            child: Icon(Icons.image, color: Colors.white, size: 50),
+                          ),
+                        ),
+                        Flexible(
+                          child: Text(
+                            service['itemName'] ?? 'No Name', // Handle null
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1, // Limit text to one line
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          '\$${service['price']?.toString() ?? '0.00'}', // Handle null
+                          style: TextStyle(color: Colors.black, fontSize: 14.0),
+                        ),
+                        SizedBox(height: 4.0),
+                        Flexible(
+                          child: Text(
+                            service['description'] ?? 'No Description', // Handle null
+                            style: TextStyle(color: Colors.black, fontSize: 12.0),
+                            maxLines: 2, // Limit to two lines
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          'Available: ${service['availability'] ? 'Yes' : 'No'}',
+                          style: TextStyle(color: Colors.black, fontSize: 12.0),
+                        ),
+                        SizedBox(height: 4.0),
+                        Text(
+                          'Service Time: ${service['serviceTime'] ?? 'N/A'}', // Handle null
+                          style: TextStyle(color: Colors.black, fontSize: 12.0),
+                        ),
+                        SizedBox(height: 8.0), // Reduced space above the button
+                        Container(
+                          width: double.infinity, // Ensure button spans the container width
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3.0),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              addToCart(context, service);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black, // Button color
+                            ),
+                            child: Text('Add to Cart', style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-          TextButton(
-            child: Text('Confirm'),
-            onPressed: () {
-              setState(() {
-                _cartItems.add(service);
-              });
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${service['title']} added to cart!')),
-              );
-            },
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.deepPurple.shade400,
+                      Colors.deepPurple.shade800,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                width: 300,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.deepPurple.shade800,
+                    padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  child: Text('Continue Booking'),
+                ),
+              ),
+            ),
           ),
         ],
-      );
-    },
-  );
-}
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> _getFilteredServices() {
+    if (_selectedFilter == 'All') {
+      return widget.services;
+    } else {
+      return widget.services
+          .where((service) => service['category'] == _selectedFilter)
+          .toList();
+    }
+  }
 }
 
+class FilterDropdown extends StatefulWidget {
+  final String value;
+  final Function(String?) onChanged;
+
+  const FilterDropdown({Key? key, required this.value, required this.onChanged}) : super(key: key);
+
+  @override
+  _FilterDropdownState createState() => _FilterDropdownState();
+}
+
+class _FilterDropdownState extends State<FilterDropdown> {
+  String? _selectedFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFilter = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 80,
+      height: 30,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey),
+      ),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SvgPicture.asset(
+              'asset/filter-svgrepo-com.svg', 
+              width: 10,
+              height: 10,
+            ),
+          ),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                isExpanded: true,
+                value: _selectedFilter,
+                dropdownColor: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                items: [
+                  'All',
+                  'Hair',
+                  'Spa',
+                  'Skin',
+                  'Nails',
+                ].map((value) {
+                  return DropdownMenuItem(
+                    child: Text(value, style: TextStyle(color: Colors.deepPurple.shade800)),
+                    value: value,
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedFilter = value as String?;
+                  });
+                  widget.onChanged(value);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

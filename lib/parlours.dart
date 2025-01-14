@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:saloon_app/Booking%20details.dart';
 
 class Parlours extends StatefulWidget {
+  final List<dynamic> parlourShops;
   final String serviceFilter;
-  final List<Map<String, String>> parlourShops;
 
   const Parlours({
     Key? key,
-    required this.serviceFilter,
     required this.parlourShops,
+    this.serviceFilter = '',
   }) : super(key: key);
 
   @override
@@ -17,190 +17,224 @@ class Parlours extends StatefulWidget {
 
 class _ParloursState extends State<Parlours> {
   TextEditingController searchController = TextEditingController();
-  List<Map<String, String>> filteredShops = [];
+  List<dynamic> parlourShops = [];
   bool isSearchVisible = false;
+  FocusNode searchFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _filterShops(); // Initialize filtered shops
+    parlourShops = widget.parlourShops;
+    _filterShops(widget.serviceFilter);
+  }
+
+  @override
+  void dispose() {
+    searchFocusNode.dispose();
+    super.dispose();
   }
 
   void _filterShops([String query = '']) {
     setState(() {
-      filteredShops = widget.parlourShops.where((shop) {
-        final services = shop['description']!
-            .split(',')
-            .map((s) => s.trim().toLowerCase())
-            .toList();
-        final shopName = shop['shopName']!.toLowerCase();
-        final address = shop['address']!.toLowerCase();
-        final searchQuery = query.toLowerCase();
-
-        return shopName.contains(searchQuery) ||
-            address.contains(searchQuery) ||
-            services.any((service) => service.contains(searchQuery));
-      }).toList();
+      if (query.isEmpty) {
+        parlourShops = widget.parlourShops;
+      } else {
+        parlourShops = widget.parlourShops.where((shop) {
+          final shopName = shop['parlourName']?.toLowerCase() ?? '';
+          return shopName.contains(query.toLowerCase());
+        }).toList();
+      }
     });
+  }
+
+  AppBar _appBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      title: isSearchVisible
+          ? TextField(
+              controller: searchController,
+              focusNode: searchFocusNode,
+              decoration: const InputDecoration(hintText: 'Search...', hintStyle: TextStyle(color: Colors.grey)),
+              onChanged: _filterShops,
+              cursorColor: Colors.deepPurple,
+              style: const TextStyle(color: Colors.deepPurple),
+            )
+          : Text(
+              'Parlours ${widget.serviceFilter}',
+              style:  TextStyle(color:Colors.deepPurple.shade800),
+            ),
+      iconTheme:  IconThemeData(color: Colors.deepPurple.shade800),
+      actions: [
+        IconButton(
+          icon: Icon(isSearchVisible ? Icons.clear : Icons.search),
+          onPressed: () {
+            setState(() {
+              isSearchVisible = !isSearchVisible;
+              if (!isSearchVisible) {
+                searchController.clear();
+                _filterShops();
+                searchFocusNode.unfocus();
+              } else {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  searchFocusNode.requestFocus();
+                });
+              }
+            });
+          },
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: isSearchVisible
-            ? TextField(
-                controller: searchController,
-                decoration: const InputDecoration(hintText: 'Search...'),
-                onChanged: _filterShops,
+      backgroundColor: Colors.white,
+      appBar: _appBar(),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 16.0), // Add space here
+        child: parlourShops.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.7,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                       itemCount: parlourShops.length,
+                    itemBuilder: (context, index) {
+                      final parlour = parlourShops[index];
+                      String? imageUrl = parlour['imageUrl'];
+
+                      // Check if imageUrl is valid
+                      ImageProvider imageProvider;
+                      if (imageUrl != null && imageUrl.isNotEmpty) {
+                        imageProvider = NetworkImage(imageUrl);
+                      } else {
+                        imageProvider = const AssetImage('asset/saloon_3-removebg-preview.png');
+                      }
+
+
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(16),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BookingPage(
+                                          parlourDetails: parlour,
+                                          title: parlour['parlourName'] ?? '',
+                                          imageUrl: imageUrl ?? '',
+                                          shopName: parlour['parlourName'] ?? '',
+                                          shopAddress: parlour['location'] ?? 'No Address Available',
+                                          contactNumber: parlour['phoneNumber'] ?? 'No Contact Available',
+                                          description: parlour['description'] ?? 'No Description Available',
+                                          id: parlour['id'] ?? 'No id',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(16),
+                                        ),
+                                        child: Container(
+                                          height: 120,
+                                          width: double.infinity,
+                                          child: FadeInImage(
+                                            placeholder: AssetImage('asset/saloon_3-removebg-preview.png'),
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
+                                            imageErrorBuilder: (context, error, stackTrace) {
+                                              return Image.asset(
+                                                'asset/saloon_3-removebg-preview.png',
+                                                fit: BoxFit.cover,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              parlour['parlourName'] ?? 'Unknown Parlour',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.deepPurple.shade800,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              parlour['location'] ?? 'No Location Available',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.star,
+                                                  size: 16,
+                                                  color: Colors.amber,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  parlour['ratings']?.toString() ?? 'No Ratings',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey.shade600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               )
-            : Text('Parlours - ${widget.serviceFilter}'),
-        actions: [
-          IconButton(
-            icon: Icon(isSearchVisible ? Icons.clear : Icons.search),
-            onPressed: () {
-              setState(() {
-                isSearchVisible = !isSearchVisible;
-                if (!isSearchVisible) {
-                  searchController.clear();
-                  _filterShops(); // Reset filtered shops when search is closed
-                }
-              });
-            },
-          ),
-        ],
-      ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 2 cards per row
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.75, // Adjust the ratio as needed
-        ),
-        itemCount: filteredShops.length,
-        itemBuilder: (context, index) {
-          final shop = filteredShops[index];
-          return ParlourShopCard(
-            shopName: shop['shopName']!,
-            address: shop['address']!,
-            contactNumber: shop['contactNumber']!,
-            description: shop['description']!,
-            imageUrl: shop['imageUrl']!,
-          );
-        },
-      ),
-    );
-  }
-}
-class ParlourShopCard extends StatelessWidget {
-  final String shopName;
-  final String address;
-  final String contactNumber;
-  final String description;
-  final String imageUrl;
-
-  const ParlourShopCard({
-    Key? key,
-    required this.shopName,
-    required this.address,
-    required this.contactNumber,
-    required this.description,
-    required this.imageUrl,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookingPage(
-              imageUrl: imageUrl,
-              title: shopName,
-              shopName: shopName,
-              shopAddress: address,
-              contactNumber: contactNumber,
-              description: description,
-              parlourDetails: {},
-            ),
-          ),
-        );
-      },
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  imageUrl,
-                  width: double.infinity,
-                  height: 120,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey[300],
-                      height: 120,
-                      child: Center(child: Icon(Icons.error)),
-                    );
-                  },
-                ),
+            : const Center(
+                child: Text('No parlours available', style: TextStyle(fontSize: 16)),
               ),
-              SizedBox(height: 8),
-              Text(
-                shopName,
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              SizedBox(height: 4),
-              Text(
-                description,
-                style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              SizedBox(height: 4),
-              Text(
-                address,
-                style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-              SizedBox(height: 4),
-              Text(
-                contactNumber,
-                style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Colors.black),
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

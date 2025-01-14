@@ -1,13 +1,11 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:saloon_app/editprofile.dart';
 import 'package:saloon_app/homepage.dart';
-
 import 'package:saloon_app/loginscreen.dart';
 import 'package:saloon_app/notification.dart';
-import 'package:saloon_app/settings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -51,14 +49,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
+          
           title: Text(
             'Profile',
-            style: GoogleFonts.adamina(color: Colors.black),
+            style: GoogleFonts.adamina(color: Colors.deepPurple.shade800),
           ),
           centerTitle: true,
           backgroundColor: Colors.white,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back, color: Colors.deepPurple.shade800),
             onPressed: () => _navigateToHomePage(context),
           ),
         ),
@@ -87,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 30,
                         height: 30,
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.deepPurple.shade400,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -126,49 +125,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ListView(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.person),
-                    title: Text('Edit Profile'),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    leading: Icon(Icons.person, color: Colors.deepPurple.shade800),
+                    title: Text('Edit Profile', style: TextStyle(color: Colors.deepPurple.shade800)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.deepPurple.shade800),
                     onTap: () {
-                      // Navigate to Edit Profile Screen
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileScreen()));
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.history),
-                    title: Text('Booking History'),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    leading: Icon(Icons.history, color: Colors.deepPurple.shade800),
+                    title: Text('Booking History', style: TextStyle(color: Colors.deepPurple.shade800)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.deepPurple.shade800),
                     onTap: () {
                       // Navigate to Booking History Screen
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.notifications),
-                    title: Text('Notifications'),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    leading: Icon(Icons.notifications, color: Colors.deepPurple.shade800),
+                    title: Text('Notifications', style: TextStyle(color: Colors.deepPurple.shade800)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.deepPurple.shade800),
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => notifications()),
+                        MaterialPageRoute(builder: (context) => notifications()),
                       );
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
-                    trailing: Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SettingsScreen()),
-                      );
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Logout'),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    leading: Icon(Icons.logout, color: Colors.deepPurple.shade800),
+                    title: Text('Logout', style: TextStyle(color: Colors.deepPurple.shade800)),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.deepPurple.shade800),
                     onTap: () => _logout(context),
                   ),
                 ],
@@ -206,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Navigator.of(context).pop(); // Close the dialog
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text('Logged out successfully'),
-                )); 
+                ));
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => LoginPage()),
                   (Route<dynamic> route) => false,
@@ -220,15 +206,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _editUserInfo(BuildContext context) {
+  void _editUserInfo (BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
             'Edit Information',
-            style:
-                GoogleFonts.adamina(fontSize: 18, fontWeight: FontWeight.bold),
+            style: GoogleFonts.adamina(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           content: SingleChildScrollView(
             child: Column(
@@ -242,8 +227,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   ),
                 ),
               ],

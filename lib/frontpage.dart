@@ -1,88 +1,315 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:saloon_app/homepage.dart';
-
 import 'package:saloon_app/RegisterPage.dart';
+import 'package:saloon_app/color.dart';
+import 'package:saloon_app/homepage.dart';
+import 'package:saloon_app/image.dart';
+import 'package:saloon_app/primary%20button.dart';
 
-class MyHomePage extends StatelessWidget {
+class DoorHubOnboardingScreen extends StatefulWidget {
+  const DoorHubOnboardingScreen({Key? key}) : super(key: key);
+
+  @override
+  DoorHubOnboardingScreenState createState() => DoorHubOnboardingScreenState();
+}
+
+class DoorHubOnboardingScreenState extends State<DoorHubOnboardingScreen> {
+  int _currentPageIndex = 0;
+  final _pageController = PageController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Use a Stack to layer widgets, with the background image as the bottom-most widget
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          // Background image setup
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('asset/background img.jpg'), // Replace with your own image path
-                fit: BoxFit.cover,
+      backgroundColor: Colors.deepPurple.shade50,
+      body: Column(
+        children: [
+          Expanded(
+              child: PageView.builder(
+            itemCount: onboardingList.length,
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            onPageChanged: (index) {
+              setState(() {
+                _currentPageIndex = index;
+              });
+            },
+            itemBuilder: (context, index) {
+              return OnboardingCard(
+                playAnimation: true,
+                onboarding: onboardingList[index],
+              );
+            },
+          )),
+          (_currentPageIndex < onboardingList.length - 1)
+              ? NextButton(onTap: () {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeInOut,
+                  );
+                })
+              :  Padding(
+                padding: const EdgeInsets.only(left: 20,right: 20),
+                child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.deepPurple.shade400,
+                                Colors.deepPurple.shade800,
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepPurple.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>HomePage()));
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: const Center(
+                                child: Text(
+                                  'Login In',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
               ),
-            ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 20,right: 20),
+            child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.deepPurple.shade400,
+                                Colors.deepPurple.shade800,
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.deepPurple.withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>RegisterPage()));
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: const Center(
+                                child: Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
           ),
-          
-          // Logo setup
-          Positioned(
-            top: 150.0, // Adjust the positioning as needed
-            left: 123.0, // Adjust the positioning as needed
-            child: Image.asset(
-              'asset/salon_INFO-removebg-preview.png', // Replace with your own logo path
-              width: 170, // Adjust the width as needed
-              height:170, // Adjust the height as needed
-            ),
-          ),
-          // Text setup
-          Positioned(
-            top: 50.0, // Adjust the vertical positioning as needed
-            left: 0.0,
-            right: 0.0,
-            child: Center(
-              child: Text(
-                'SALON INFO',
-                style:GoogleFonts.adamina(
-                  textStyle: TextStyle(color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold)
-                )
-              ),
-            ),
-          ),
-
-          // Center widget containing your content
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                // Optionally, you can include a welcome text
-                SizedBox(height: 70.0), // Adding some space between text and buttons
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 50),
-                    backgroundColor: Colors.grey
-                  ),
-                  child: Text('LOGIN', style: TextStyle(color: Colors.white)),
-                ),
-                SizedBox(height: 20.0), // Adding some space between buttons
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
-                    print('Register button pressed');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(250, 50),
-                    backgroundColor:  Colors.grey,
-                  ),
-                  child: Text('REGISTER', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 }
+
+class OnboardingAnimations {
+  static AnimationController createSlideController(TickerProvider vsync) {
+    return AnimationController(
+      vsync: vsync,
+      duration: const Duration(milliseconds: 1000),
+    );
+  }
+
+  static AnimationController createController(TickerProvider vsync) {
+    return AnimationController(
+      vsync: vsync,
+      duration: const Duration(milliseconds: 1000),
+    );
+  }
+
+  static AnimationController createFadeController(TickerProvider vsync) {
+    return AnimationController(
+      vsync: vsync,
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
+  static Animation<Offset> openSpotsSlideAnimation(
+      AnimationController controller) {
+    return Tween<Offset>(
+      begin: const Offset(0.0, -0.8),
+      end: const Offset(0.0, -0.05),
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: const ElasticOutCurve(1.2),
+    ));
+  }
+
+  static Animation<Offset> digitalPermitsSlideAnimation(
+      AnimationController controller) {
+    return Tween<Offset>(
+      begin: const Offset(0.0, 1.0),
+      end: const Offset(0.0, 0.07),
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: const ElasticOutCurve(1.2),
+    ));
+  }
+
+  static Animation<Offset> rewardsSlideAnimation(
+      AnimationController controller) {
+    return Tween<Offset>(
+      begin: const Offset(0.0, -0.8),
+      end: const Offset(0.0, -0.05),
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: const ElasticOutCurve(1.2),
+    ));
+  }
+
+  static Animation<double> fadeAnimation(AnimationController controller) {
+    return Tween<double>(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeIn,
+    ));
+  }
+}
+
+class OnboardingCard extends StatefulWidget {
+  final bool playAnimation;
+  final Onboarding onboarding;
+  const OnboardingCard(
+      {required this.playAnimation, super.key, required this.onboarding});
+
+  @override
+  State<OnboardingCard> createState() => _OnboardingCardState();
+}
+
+class _OnboardingCardState extends State<OnboardingCard>
+    with TickerProviderStateMixin {
+  late AnimationController _slideAnimationController;
+  late Animation<Offset> _slideAnimation;
+
+  Animation<Offset> get slideAnimation => _slideAnimation;
+  AnimationController get slideAnimationController => _slideAnimationController;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.playAnimation) {
+      _slideAnimationController.forward();
+    } else {
+      _slideAnimationController.animateTo(
+        1,
+        duration: const Duration(milliseconds: 0),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _slideAnimationController =
+        OnboardingAnimations.createSlideController(this);
+    _slideAnimation =
+        OnboardingAnimations.openSpotsSlideAnimation(_slideAnimationController);
+  }
+
+  @override
+  void dispose() {
+    _slideAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Column(
+        children: [
+          const Spacer(),
+          Image.asset(
+            widget.onboarding.image,
+            width: double.maxFinite,
+            fit: BoxFit.fitWidth,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            widget.onboarding.title,
+            style:  TextStyle(
+                fontSize: 24, fontWeight: FontWeight.w700, color: Colors.deepPurple.shade800,),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.onboarding.description,
+            style:  TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w400, color: Colors.deepPurple.shade800,),
+            textAlign: TextAlign.center,
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class NextButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const NextButton({required this.onTap, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: const BoxDecoration(
+            color: AppColors.kPrimary, shape: BoxShape.circle),
+        child: const Icon(Icons.navigate_next, size: 30, color: Colors.white),
+      ),
+    );
+  }
+}
+
+class Onboarding {
+  String image;
+  String title;
+  String description;
+
+  Onboarding(
+      {required this.description, required this.image, required this.title});
+}
+
+List<Onboarding> onboardingList = [
+  Onboarding(
+      description: 'Explore Our Services and Book your Appointment Easily !',
+      image: AppAssets.kOnboardingFirst,
+      title: 'Welcome to Salon Info'),
+];

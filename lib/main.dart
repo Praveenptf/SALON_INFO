@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:saloon_app/Cartmodel.dart';
 import 'package:saloon_app/frontpage.dart';
+
 void main() {
-  runApp(const MyApp());
+  runApp( ChangeNotifierProvider(
+    create: (context) => CartModel(),
+    child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -12,8 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Saloon App',
-      home: MyHomePage(),
+      title: 'Saloon Info',
+      home: DoorHubOnboardingScreen(),
     );
   }
 }

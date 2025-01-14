@@ -1,282 +1,498 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:saloon_app/Booking%20details.dart';
 import 'package:saloon_app/Location.dart';
 import 'package:saloon_app/parlours.dart';
-import 'package:saloon_app/slider.dart'; // Import your ImageCarousel widget
-import 'package:saloon_app/Booking%20details.dart'; // Import your BookingPage
-import 'package:saloon_app/profile.dart'; // Import your ProfilePage
+import 'package:saloon_app/slider.dart';
+import 'package:saloon_app/profile.dart';
 
 class HomePage extends StatefulWidget {
+  final List<dynamic> initialNearbyParlours;
+
+  HomePage({Key? key, this.initialNearbyParlours = const []}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Index to track selected tab
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  int _selectedIndex = 0;
+  List<dynamic> _nearbyParlours = [];
+  bool _isLoading = true;
+  bool _isAppBarVisible = true;
+  TextEditingController searchController = TextEditingController();
+  late ScrollController _scrollController;
+  final FocusNode _searchFocusNode = FocusNode();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
-  final List<Map<String, String>> parlourShops = [
-    {
-      'shopName': 'Glamour Beauty Salon',
-      'address': 'Alappy Beauty St, Alappuzha',
-      'contactNumber': '+91 6703456789',
-      'description': 'Hair',
-      'imageUrl':
-          'https://content.jdmagicbox.com/comp/alappuzha/u2/0477px477.x477.230322194815.j8u2/catalogue/p040lrdauigeji8-v9vsr95h1g.jpg?clr=',
-    },
-    {
-      'shopName': 'Glamour Alpite',
-      'address': 'Alappy Beauty St, Alappuzha',
-      'contactNumber': '+91 6703456789',
-      'description': 'Nails',
-      'imageUrl':
-          'https://content.jdmagicbox.com/comp/alappuzha/u2/0477px477.x477.230322194815.j8u2/catalogue/p040lrdauigeji8-v9vsr95h1g.jpg?clr=',
-    },
-    {
-      'shopName': 'Beauty Lounge',
-      'address': 'MG Road, Kochi',
-      'contactNumber': '+91 1234567890',
-      'description': 'Skin',
-      'imageUrl':
-          'https://media.istockphoto.com/id/1325440885/photo/retro-styled-beauty-salon.jpg?s=612x612&w=0&k=20&c=uEdh3ypS-Zeq9X5YJzIfBaiaoFYstRFNowZBTbQWT8I=',
-    },
-    {
-      'shopName': 'Urban Chic Salon',
-      'address': 'Linking Road, Ernakulam',
-      'contactNumber': '+91 0987654321',
-      'description': 'Spa',
-      'imageUrl':
-          'https://img.freepik.com/premium-photo/beauty-salon-interior-chairs-mirrors-pink-hairdressing-shop-generative-ai-inside-beauty-studio-spa-room-clean-empty-trendy-salon-store-fashion-glamour-design-concept_788189-10319.jpg',
-    },
-    {
-      'shopName': 'XPressions Studio',
-      'address': 'Linking Road, Ernakulam',
-      'contactNumber': '+91 0987654321',
-      'description': 'Spa, Nails, Skin',
-      'imageUrl':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROIbEGhJbL6vQPWErlalF5m8vMpZFKd15kLg&s',
-    },
-    {
-      'shopName': 'Level-Up Salon',
-      'address': 'Linking Road, Ernakulam',
-      'contactNumber': '+91 0987654321',
-      'description': 'Spa, Hair, Skin, Nails',
-      'imageUrl':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQpcNd_c7o84c9e-swrPwKlTXle08cAqyOqg&s',
-    },
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  @override
+  void initState() {
+    super.initState();
+    _nearbyParlours = widget.initialNearbyParlours;
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    _searchFocusNode.addListener(() {
+      if (!_searchFocusNode.hasFocus) {
+        searchController.clear();
+      }
     });
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.0, 0.65, curve: Curves.easeOut),
+    ));
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.0, 0.65, curve: Curves.easeOut),
+    ));
+
+    _animationController.forward();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (_isAppBarVisible) setState(() => _isAppBarVisible = false);
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+      if (!_isAppBarVisible) setState(() => _isAppBarVisible = true);
+    }
   }
 
   @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _searchFocusNode.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _onLocationSelected(LatLng location, List<dynamic> nearbyParlours) {
+    setState(() {
+      _nearbyParlours = nearbyParlours;
+      _isLoading = false;
+    });
+  }
+
+  void _filterParlours(String query) {
+  if (query.isEmpty) {
+    // If the search query is empty, reset to the original list
+    _nearbyParlours = widget.initialNearbyParlours;
+  } else {
+    // Filter the parlours based on the search query
+    _nearbyParlours = widget.initialNearbyParlours.where((parlour) {
+      String parlourName = parlour['parlourName']?.toLowerCase() ?? '';
+      return parlourName.contains(query.toLowerCase());
+    }).toList();
+  }
+}
+
+
+
+  @override
   Widget build(BuildContext context) {
-    // Define the pages to display
     final List<Widget> _pages = [
       Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: Text(
-            "Salon Info",
-            style: GoogleFonts.adamina(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.location_on, color: Colors.white),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Mappage()),
-                );
-              },
-            ),
-          ],
-          automaticallyImplyLeading: false,
-        ),
-        body: SingleChildScrollView(
-          // Wrap the body in SingleChildScrollView
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ImageCarousel(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Welcome to Salon Info',
-                  style: GoogleFonts.adamina(
-                      fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'Explore Our Services and Book your Appointment Easily',
-                  style: GoogleFonts.adamina(fontSize: 16),
-                ),
-              ),
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Available Services',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        backgroundColor: Colors.white,
+        appBar: _isAppBarVisible
+            ? AppBar(
+                elevation: 0,
+                toolbarHeight: 125,
+                backgroundColor: Colors.white,
+                flexibleSpace: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.deepPurple.shade50,
+                        Colors.white,
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Parlours(
-                              parlourShops: parlourShops,
-                              serviceFilter: '',
+                  ),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Salon Info",
+                          style: GoogleFonts.adamina(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple.shade800,
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.deepPurple.shade400,
+                                Colors.deepPurple.shade800,
+                              ],
                             ),
                           ),
-                        );
-                      },
-                      child: Text('View All'),
+                          child: IconButton(
+                            icon: Icon(Icons.location_on, color: Colors.white),
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Mappage(
+                                    onLocationSelected: _onLocationSelected,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+  controller: searchController,
+  onChanged: (value) {
+    setState(() {
+      // Call the method to filter parlours based on the search query
+      _filterParlours(value);
+    });
+  },
+  decoration: InputDecoration(
+    hintText: 'Search...',
+    hintStyle: TextStyle(color: Colors.grey.shade400),
+    prefixIcon: Icon(
+      Icons.search,
+      color: Colors.deepPurple.shade300,
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    ),
+    filled: true,
+    fillColor: Colors.white,
+  ),
+),
                     ),
                   ],
                 ),
-              ),
-              SizedBox(height: 10),
-              GridView.builder(
-                shrinkWrap:
-                    true, // Allows the GridView to be scrollable within SingleChildScrollView
-                physics:
-                    NeverScrollableScrollPhysics(), // Disable GridView's scroll
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.8,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount:
-                    parlourShops.take(4).length, // Limit to first 4 items
-                itemBuilder: (context, index) {
-                  final shop = parlourShops[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookingPage(
-                            imageUrl: shop['imageUrl']!,
-                            title: shop['shopName']!,
-                            shopName: shop['shopName']!,
-                            shopAddress: shop['address']!,
-                            contactNumber: shop['contactNumber']!,
-                            description: shop['description']!,
-                            parlourDetails: {},
+                automaticallyImplyLeading: false,
+              )
+            : null,
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 16),
+                  ImageCarousel(),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome to Salon Info',
+                          style: GoogleFonts.adamina(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple.shade800,
                           ),
                         ),
-                      );
-                    },
-                    child: Container(
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                        SizedBox(height: 8),
+                        Text(
+                          'Explore Our Services and Book your Appointment Easily',
+                          style: GoogleFonts.adamina(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
-                        elevation: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  shop['imageUrl']!,
-                                  width: double.infinity,
-                                  height: 120,
-                                  fit: BoxFit.cover,
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Nearby Services',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple.shade800,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Parlours(
+                                  parlourShops: _nearbyParlours,
+                                  serviceFilter: searchController.text,
                                 ),
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                shop['shopName']!,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                shop['description']!,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                shop['address']!,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 12,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                shop['contactNumber']!,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 12,
-                                    color: Colors.black),
-                                textAlign: TextAlign.center,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ],
+                            );
+                          },
+                          child: Text(
+                            'View All',
+                            style: TextStyle(
+                              color: Colors.deepPurple.shade400,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  if (_isLoading)
+                    Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.deepPurple.shade400,
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.7,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                          itemCount: _nearbyParlours.length,
+                     
+itemBuilder: (context, index) {
+  final parlour = _nearbyParlours[index];
+  String? imageUrl = parlour['image'];
+
+  ImageProvider imageProvider;
+
+  print('Image URL: $imageUrl'); // Debugging
+
+  if (imageUrl == null || imageUrl.isEmpty) {
+    imageProvider = AssetImage('asset/saloon_3-removebg-preview.png');
+  } else if (imageUrl.startsWith('data:image/')) {
+    try {
+      final base64Image = imageUrl.split(',').last; // Get the base64 part
+      final decodedImage = base64Decode(base64Image); // Decode the base64 string
+      imageProvider = MemoryImage(decodedImage); // Create MemoryImage
+    } catch (e) {
+      print('Error decoding base64 image: $e');
+      imageProvider = AssetImage('asset/saloon_3-removebg-preview.png');
+    }
+  } else {
+    try {
+      Uri.parse(imageUrl); // Validate the URL
+      imageProvider = NetworkImage(imageUrl); // Use NetworkImage for URLs
+    } catch (e) {
+      print('Invalid URL: $e');
+      imageProvider = AssetImage('asset/saloon_3-removebg-preview.png');
+    }
+  }
+
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    ),
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingPage(
+                parlourDetails: parlour,
+                title: parlour['parlourName'] ?? '',
+                imageUrl: imageUrl ?? '',
+                shopName: parlour['parlourName'] ?? '',
+                shopAddress: parlour['location'] ?? 'No Address Available',
+                contactNumber: parlour['phoneNumber'] ?? 'No Contact Available',
+                description: parlour['description'] ?? 'No Description Available',
+                id: parlour['id'] ?? 'No id',
+              ),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              child: Container(
+                height: 120,
+                width: double.infinity,
+                child: FadeInImage(
+                  placeholder: AssetImage('asset/saloon_3-removebg-preview.png'),
+                  image: imageProvider,
+                  fit: BoxFit.cover,
+                  imageErrorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'asset/saloon_3-removebg-preview.png',
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    parlour['parlourName'] ?? 'Unknown Parlour',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple.shade800,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox 
+                  (height: 4),
+                  Text(
+                    parlour['location'] ?? 'No Location Available',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star,
+                        size: 16,
+                        color: Colors.amber,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        parlour['ratings']?.toString() ?? 'No Ratings',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+                          },
                         ),
                       ),
                     ),
-                  );
-                },
-              )
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
-      ProfileScreen(), // Replace with your actual ProfilePage
+      ProfileScreen(),
     ];
 
     return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.deepPurple.shade400,
+              Colors.deepPurple.shade800,
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.deepPurple.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white.withOpacity(0.6),
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined),
+              activeIcon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline),
+              activeIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
